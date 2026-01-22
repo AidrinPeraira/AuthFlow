@@ -30,11 +30,11 @@ app.post("/login", (req, res) => {
   const accessToken = "this-good-access-token";
   const refreshToken = "this-good-refresh-token";
 
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
+  //   res.cookie("accessToken", accessToken, {
+  //     httpOnly: true,
+  //     secure: false,
+  //     sameSite: "lax",
+  //   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -44,15 +44,17 @@ app.post("/login", (req, res) => {
 
   res.status(200).json({
     message: "Login successful",
+    accessToken,
   });
 });
 
 app.get("/dashboard", (req, res) => {
-  const { accessToken } = req.cookies;
+  let header = req.headers.authorization;
+  let accessToken = header.split(" ")[1];
 
-  console.log("Cookies received:", req.cookies);
+  console.log(accessToken);
 
-  if (!accessToken) {
+  if (!accessToken || accessToken !== "this-good-access-token") {
     return res.status(401).json({ message: "No cookie found. Access denied." });
   }
 

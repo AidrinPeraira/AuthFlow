@@ -28,6 +28,7 @@
 
     <script>
         const statusDiv = document.getElementById('status');
+        let token = ""
 
         async function login() {
             try {
@@ -35,6 +36,7 @@
                 const data = await response.json();
                 
                 statusDiv.innerText = data.message;
+                token = data.accessToken
                 statusDiv.className = 'success';
                 console.log('Login Response:', data);
             } catch (err) {
@@ -45,7 +47,11 @@
 
         async function checkAccess() {
             try {
-                const response = await fetch('/dashboard');
+                const response = await fetch('/dashboard', {
+                    headers : {
+                        Authorization : `Bearer ${token}`
+                    }
+                });
                 const data = await response.json();
 
                 if (response.ok) {
