@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Site</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .controls { margin-bottom: 20px; }
+        button { padding: 10px 15px; cursor: pointer; margin-right: 10px; }
+        #status { padding: 15px; border: 1px solid #ccc; background: #f9f9f9; min-height: 50px; }
+        .success { color: green; border-color: green !important; }
+        .error { color: red; border-color: red !important; }
+    </style>
+</head>
+<body>
+
+    <h1>Cookie Auth Demo</h1>
+
+    <div class="controls">
+        <button onclick="login()">1. Login (Set Cookie)</button>
+        <button onclick="checkAccess()">2. Access Protected Route</button>
+    </div>
+
+    <div id="status">
+        Response messages will appear here...
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+
+        async function login() {
+            try {
+                const response = await fetch('/login', { method: 'POST' });
+                const data = await response.json();
+                
+                statusDiv.innerText = data.message;
+                statusDiv.className = 'success';
+                console.log('Login Response:', data);
+            } catch (err) {
+                statusDiv.innerText = 'Login failed';
+                statusDiv.className = 'error';
+            }
+        }
+
+        async function checkAccess() {
+            try {
+                const response = await fetch('/dashboard');
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusDiv.innerText = data.message;
+                    statusDiv.className = 'success';
+                } else {
+                    statusDiv.innerText = data.message;
+                    statusDiv.className = 'error';
+                }
+                console.log('Dashboard Response:', data);
+            } catch (err) {
+                statusDiv.innerText = 'Request failed';
+                statusDiv.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>
