@@ -11,7 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5000",
+    origin: ["http://localhost:5000", "http://localhost:3000"],
     credentials: true,
   }),
 );
@@ -36,21 +36,47 @@ app.post("/login", (req, res) => {
   //     sameSite: "lax",
   //   });
 
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
+  // res.cookie("refreshToken", refreshToken, {
+  //   httpOnly: true,
+  //   secure: false,
+  //   sameSite: "lax",
+  // });
 
   res.status(200).json({
     message: "Login successful",
     accessToken,
+    refreshToken,
   });
 });
 
+app.post("/refresh", (req, res) => {
+  console.log("Refreshing user tokens");
+
+  let { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Token not found" });
+  }
+
+  const accessToken = "this-good-access-token";
+
+  if (refreshToken == "this-good-refresh-token") {
+    res.status(200).json({
+      message: "Login successful",
+      accessToken,
+      refreshToken,
+    });
+  } else {
+    res.status(401).json({
+      message: "Bad Token",
+    });
+  }
+});
+
 app.get("/dashboard", (req, res) => {
-  let header = req.headers.authorization;
-  let accessToken = header.split(" ")[1];
+  let accessToken = req.headers.authorization
+    ? req.headers.authorization.split(" ")[1]
+    : null;
 
   console.log(accessToken);
 
